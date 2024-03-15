@@ -61,7 +61,7 @@ export class Conn
     //   return;
     // }
 
-    this.server.write(data);
+    this.server.write(data.reverse());
   }
   // ** Socks5 Client request for connection **
   connect(data: number[])
