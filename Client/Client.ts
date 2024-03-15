@@ -8,41 +8,108 @@ interface Props
   port?: number;
 }
 
-class Client
+export class Client
 {
+  static version = 0x05;
+
   constructor (props?: Props)
   {
-    const { hostname, port } = props;
-    this.initialize(hostname, port);
+    this.initialize(props?.hostname, props?.port);
   }
 
   // ** FORWARDER **
-
-  //  make a server to deliver the
-  //  Packet from clinet-side into
-  //  the server behind firewalls.
+  //
+  //  make a server to deliver the Packet
+  //  from clinet-side into the server behind
+  //  firewalls with encrypted connection
+  //
 
   initialize(hostname: string = '127.0.0.1', port: number = 9999): void
   {
     const options: TCPSocketListenOptions<Conn> = {
       hostname: hostname,
       port: port,
-      socket: {}
+      socket: {
+        open: this.open.bind(this),
+        data: this.data.bind(this),
+        close: this.close.bind(this),
+        drain: this.drain.bind(this),
+        error: this.error.bind(this),
+      }
     };
 
-    try { Bun.listen<Conn>(options); }
+    try
+    {
+      Bun.listen<Conn>(options);
+      console.log(`Proxy SOCKS5 Started [${ hostname }:${ port }]`);
+    }
     catch (error)
     {
-      console.error("Create server faild");
+      console.error(`Create server faild ${ error }`);
       process.exit(1);
     }
-  }
+  };
 
   // ** HANDLERS **
+  //
+  //  Socket function for bun TCP server options
+  //
 
-  //  Socket function for bun options
-
-  open(socket: Socket<Conn>)
+  open(socket: Socket<Conn>): void // socket opened
   {
+    socket.data = new Conn({ client: socket });
+  }
+
+  data(socket: Socket<Conn>, data: Buffer): void // message received from client
+  {
+    const conn = socket.data;
+
+    if (conn.isConnected)
+    {
+      this.forward(conn, data);
+      return;
+    }
+
+    const [ version, ...message ] = Array.from(data);
+    if (!conn.isGreeted)
+    {
+      if (version != Conn.Version)
+      {
+        const response = Buffer.from([ 0xFF ]);
+        socket.end(response);
+      }
+
+      conn.greeting(message);
+      return;
+    }
+
+    conn.connect(message);
+  }
+  close(socket: Socket<Conn>): void // socket closed
+  { }
+  drain(socket: Socket<Conn>): void // socket ready for more data
+  { }
+  error(socket: Socket<Conn>, error: Error): void // error handler
+  { }
+
+  async forward(conn: Conn, data: Buffer)
+  {
+    //  TODO Fragment tls client hello
+
+    // if (conn.isClientHello)
+    // {
+    //   let clientHello = data.toString().split('.');
+    //   for (let i = 0; i < clientHello.length; i++)
+    //   {
+    //     const chunk = clientHello[ i ];
+    //     conn.server.write(`${ chunk }${ i >= clientHello.length - 1 ? '.' : '' }`);
+    //     await Bun.sleep(100);
+    //   }
+    //   conn.isClientHello = false;
+
+    //   return;
+    // }
+
+    conn.server.write(data);
   }
 }
