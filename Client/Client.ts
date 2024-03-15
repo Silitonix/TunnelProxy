@@ -23,7 +23,7 @@ export class Client
   //  from clinet-side into the server behind
   //  firewalls with encrypted connection
   //
-
+  
   initialize(hostname: string = '127.0.0.1', port: number = 9999): void
   {
     const options: TCPSocketListenOptions<Conn> = {
@@ -66,7 +66,7 @@ export class Client
 
     if (conn.isConnected)
     {
-      this.forward(conn, data);
+      conn.forward(data);
       return;
     }
 
@@ -91,25 +91,4 @@ export class Client
   { }
   error(socket: Socket<Conn>, error: Error): void // error handler
   { }
-
-  async forward(conn: Conn, data: Buffer)
-  {
-    //  TODO Fragment tls client hello
-
-    // if (conn.isClientHello)
-    // {
-    //   let clientHello = data.toString().split('.');
-    //   for (let i = 0; i < clientHello.length; i++)
-    //   {
-    //     const chunk = clientHello[ i ];
-    //     conn.server.write(`${ chunk }${ i >= clientHello.length - 1 ? '.' : '' }`);
-    //     await Bun.sleep(100);
-    //   }
-    //   conn.isClientHello = false;
-
-    //   return;
-    // }
-
-    conn.server.write(data);
-  }
 }

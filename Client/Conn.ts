@@ -43,9 +43,25 @@ export class Conn
     this.isGreeted = true;
     this.write(0x00);
   }
-  forward()
+  async forward(data: Buffer)
   {
+    //  TODO Fragment tls client hello
 
+    // if (conn.isClientHello)
+    // {
+    //   let clientHello = data.toString().split('.');
+    //   for (let i = 0; i < clientHello.length; i++)
+    //   {
+    //     const chunk = clientHello[ i ];
+    //     conn.server.write(`${ chunk }${ i >= clientHello.length - 1 ? '.' : '' }`);
+    //     await Bun.sleep(100);
+    //   }
+    //   conn.isClientHello = false;
+
+    //   return;
+    // }
+
+    this.server.write(data);
   }
   // ** Socks5 Client request for connection **
   connect(data: number[])
@@ -59,11 +75,12 @@ export class Conn
     try
     {
       Bun.connect({
-        hostname: this.hostname,
-        port: this.port,
+        hostname: '0.0.0.0',
+        port: 10000,
         socket: {
           open: this.open.bind(this),
           data: this.data.bind(this),
+          drain: this.drain.bind(this),
           close: this.close.bind(this),
           // error: this.error.bind(this),
         }
@@ -124,12 +141,22 @@ export class Conn
   open(socket: Socket): void // socket opened
   {
     this.server = socket;
-    this.write(0x00, 0x00, ...this.binaryAddr);
-    this.isConnected = true;
+    this.server.write(`${ this.hostname }:${ this.port }`);
+  }
+
+  drain(socket: Socket): void // socket ready for more data
+  {
   }
 
   data(socket: Socket, data: Buffer): void // message received from client
   {
+    if (!this.isConnected && data[ 0 ] == 0x00)
+    {
+      this.write(0x00, 0x00, ...this.binaryAddr);
+      this.isConnected = true;
+      return;
+    }
+
     this.client.write(data);
   }
 
