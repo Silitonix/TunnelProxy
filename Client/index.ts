@@ -6,14 +6,14 @@ const argPort: string = process.argv[ 3 ];
 
 if (!argHostname || !argPort)
 {
-  throw "Error : need more argument";
+  throw "need more argument";
 }
 
 let port: number = Number(argPort);
 
 if (!port || port > 0xFFFF)
 {
-  throw "Error : invalid port";
+  throw "invalid port";
 }
 
 new Client({

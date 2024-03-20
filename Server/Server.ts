@@ -4,17 +4,16 @@ import { TCPSocketListenOptions } from "bun";
 
 interface Props
 {
-  hostname?: string;
-  port?: number;
+  port: number;
 }
 
 export class Server
 {
   static version = 0x05;
 
-  constructor (props?: Props)
+  constructor (props: Props)
   {
-    this.initialize(props?.hostname, props?.port);
+    this.initialize(props.port);
   }
 
   // ** FORWARDER **
@@ -24,10 +23,10 @@ export class Server
   //  firewalls with encrypted connection
   //
 
-  initialize(hostname: string = '0.0.0.0', port: number = 10000): void
+  initialize(port: number = 10000): void
   {
     const options: TCPSocketListenOptions<Conn> = {
-      hostname: hostname,
+      hostname: '0.0.0.0',
       port: port,
       socket: {
         open: this.open.bind(this),
@@ -40,7 +39,7 @@ export class Server
     try
     {
       Bun.listen<Conn>(options);
-      console.log(`Proxy SOCKS5 Started [${ hostname }:${ port }]`);
+      console.log(`Proxy SOCKS5 Started [0.0.0.0:${ port }]`);
     }
     catch (error)
     {
