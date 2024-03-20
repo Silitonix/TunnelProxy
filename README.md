@@ -2,6 +2,8 @@
 
 make your own protocol behind Socks5 proxy
 
+![visual explaination](Docs/graph.png)
+
 ## Installation 
 you need to run script inside **Server** and also **Client** to communicate with each other.
 install [***bun***](https://bun.sh) inside **Server** and **Client** and restart your terminal.
