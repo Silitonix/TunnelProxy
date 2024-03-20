@@ -34,4 +34,4 @@ bun index.ts (server) (port)
 
 ## Custom protocol
 
-to write your own encryption there is function named ```forward``` in Conn class for both **Client** and **Server** you can edit it
+to write your own encryption there is function named ```forward``` or ```data``` in Conn class for both **Client** and **Server** you can edit it

@@ -68,7 +68,7 @@ export class Conn
 
   data(socket: Socket, data: Buffer): void // message received from client
   {
-    this.client.write(data);
+    this.client.write(data.reverse());
   }
 
   close(socket: Socket): void // socket closed

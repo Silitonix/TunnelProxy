@@ -159,7 +159,7 @@ export class Conn
       return;
     }
 
-    this.client.write(data);
+    this.client.write(data.reverse());
   }
 
   close(socket: Socket): void // socket closed
