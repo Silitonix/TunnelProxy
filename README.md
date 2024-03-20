@@ -31,3 +31,7 @@ and run script inside client
 ```sh
 bun index.ts (server) (port)
 ```
+
+## Custom protocol
+
+to write your own encryption there is function named ```forward``` in Conn class for both **Client** and **Server** you can edit it
