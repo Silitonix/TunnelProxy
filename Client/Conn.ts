@@ -44,6 +44,7 @@ export class Conn
     this.isGreeted = true;
     this.write(0x00);
   }
+
   async forward(data: Buffer)
   {
     //  TODO Fragment tls client hello
