@@ -143,7 +143,7 @@ export class Conn
   open(socket: Socket): void // socket opened
   {
     this.server = socket;
-    this.server.write(`${ this.hostname }:${ this.port }`);
+    this.forward(Buffer.from(`${ this.hostname }:${ this.port }`));
   }
 
   drain(socket: Socket): void // socket ready for more data
