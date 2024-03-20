@@ -4,17 +4,24 @@ import { TCPSocketListenOptions } from "bun";
 
 interface Props
 {
-  hostname?: string;
-  port?: number;
+  hostname: string;
+  port: number;
 }
 
 export class Client
 {
   static version = 0x05;
+  static serverHostname: string;
+  static serverPort: number;
 
-  constructor (props?: Props)
+  hostname: string = '127.0.0.1';
+  port: number = 9999;
+
+  constructor (props: Props)
   {
-    this.initialize(props?.hostname, props?.port);
+    Client.serverHostname = props.hostname;
+    Client.serverPort = props.port;
+    this.initialize();
   }
 
   // ** FORWARDER **
@@ -23,12 +30,12 @@ export class Client
   //  from clinet-side into the server behind
   //  firewalls with encrypted connection
   //
-  
-  initialize(hostname: string = '127.0.0.1', port: number = 9999): void
+
+  initialize(): void
   {
     const options: TCPSocketListenOptions<Conn> = {
-      hostname: hostname,
-      port: port,
+      hostname: '127.0.0.1',
+      port: 9999,
       socket: {
         open: this.open.bind(this),
         data: this.data.bind(this),
@@ -41,7 +48,7 @@ export class Client
     try
     {
       Bun.listen<Conn>(options);
-      console.log(`Proxy SOCKS5 Started [${ hostname }:${ port }]`);
+      console.log(`Proxy SOCKS5 Started [${ this.hostname }:${ this.port }]`);
     }
     catch (error)
     {

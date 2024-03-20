@@ -1,5 +1,6 @@
 import { Socket } from "bun";
 import { TCPSocketConnectOptions } from "bun";
+import { Client } from "./Client";
 
 interface Props
 {
@@ -75,8 +76,8 @@ export class Conn
     try
     {
       Bun.connect({
-        hostname: '0.0.0.0',
-        port: 10000,
+        hostname: Client.serverHostname,
+        port: Client.serverPort,
         socket: {
           open: this.open.bind(this),
           data: this.data.bind(this),
