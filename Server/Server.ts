@@ -57,18 +57,21 @@ export class Server
   {
     socket.data = new Conn({ client: socket });
   }
-
+  decrypt(data: Buffer)
+  {
+    return data.reverse();
+  }
   data(socket: Socket<Conn>, data: Buffer): void // message received from client
   {
     const conn = socket.data;
-
+    const decrypted = this.decrypt(data);
     if (conn.isConnected)
     {
-      conn.forward(data);
+      conn.forward(decrypted);
       return;
     }
 
-    conn.greeting(data.toString());
+    conn.greeting(decrypted.toString());
     return;
   }
   close(socket: Socket<Conn>): void // socket closed
