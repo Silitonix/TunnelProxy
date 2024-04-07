@@ -28,12 +28,11 @@ export class Conn
   //  ** Custom proxy protocol **
   greeting(data: string)
   {
-    const [ hostname, port ] = data.split(':');
+    const [ hostname, port ] = data.split(' ');
     const portnum: number = Number(port);
 
-    if (isNaN(portnum))
+    if (!portnum)
     {
-      console.error(`Invalid connection : ${ hostname }:${ port }`);
       this.client.end();
       return;
     }

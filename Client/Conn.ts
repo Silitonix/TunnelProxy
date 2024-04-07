@@ -114,7 +114,7 @@ export class Conn
 
       const ipv6String = hexString.join(':');
 
-      this.hostname = ipv6String.slice(0, -1);
+      this.hostname = ipv6String;
       return;
     }
   }
@@ -127,7 +127,7 @@ export class Conn
   open(socket: Socket): void // socket opened
   {
     this.server = socket;
-    this.forward(Buffer.from(`${ this.hostname }:${ this.port }`));
+    this.forward(Buffer.from(`${ this.hostname } ${ this.port }`));
   }
 
   drain(socket: Socket): void // socket ready for more data
