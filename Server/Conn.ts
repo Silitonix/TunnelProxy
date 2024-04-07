@@ -52,7 +52,7 @@ export class Conn
 
   forward(data: Buffer)
   {
-    this.server.write(data.reverse());
+    this.server.write(data);
   }
 
   // ** HANDLERS **
