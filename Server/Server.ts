@@ -59,7 +59,7 @@ export class Server
   }
   decrypt(data: Buffer)
   {
-    return data.reverse();
+    return data;
   }
   data(socket: Socket<Conn>, data: Buffer): void // message received from client
   {

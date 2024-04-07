@@ -29,12 +29,20 @@ export class Conn
   greeting(data: string)
   {
     const [ hostname, port ] = data.split(':');
+    const portnum: number = Number(port);
+
+    if (isNaN(portnum))
+    {
+      console.error(`Invalid connection : ${ hostname }:${ port }`);
+      this.client.end();
+      return;
+    }
 
     try
     {
       Bun.connect({
         hostname: hostname,
-        port: Number(port),
+        port: portnum,
         socket: {
           open: this.open.bind(this),
           data: this.data.bind(this),
@@ -68,7 +76,7 @@ export class Conn
 
   data(socket: Socket, data: Buffer): void // message received from client
   {
-    this.client.write(data.reverse());
+    this.client.write(data);
   }
 
   close(socket: Socket): void // socket closed

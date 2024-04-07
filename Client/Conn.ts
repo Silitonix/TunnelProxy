@@ -47,23 +47,7 @@ export class Conn
 
   async forward(data: Buffer)
   {
-    //  TODO Fragment tls client hello
-
-    // if (conn.isClientHello)
-    // {
-    //   let clientHello = data.toString().split('.');
-    //   for (let i = 0; i < clientHello.length; i++)
-    //   {
-    //     const chunk = clientHello[ i ];
-    //     conn.server.write(`${ chunk }${ i >= clientHello.length - 1 ? '.' : '' }`);
-    //     await Bun.sleep(100);
-    //   }
-    //   conn.isClientHello = false;
-
-    //   return;
-    // }
-
-    this.server.write(data.reverse());
+    this.server.write(data);
   }
   // ** Socks5 Client request for connection **
   connect(data: number[])
@@ -159,7 +143,7 @@ export class Conn
       return;
     }
 
-    this.client.write(data.reverse());
+    this.client.write(data);
   }
 
   close(socket: Socket): void // socket closed
