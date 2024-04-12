@@ -54,6 +54,7 @@ export class Conn
     {
       console.error(`Create connection faild : ${ hostname }:${ port }`);
       this.client.end();
+      this.server.end();
     }
   }
 

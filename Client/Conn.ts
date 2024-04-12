@@ -109,7 +109,9 @@ export class Conn
       for (let i = 0; i < 16; i += 2)
       {
         const number = (binaryHost[ i ] << 8) | binaryHost[ i + 1 ];
-        hexString.push(number.toString(16).padStart(4, '0'));
+        let text = number.toString(16).padStart(4, '0');
+        hexString.push(text);
+
       }
 
       const ipv6String = hexString.join(':');
