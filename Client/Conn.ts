@@ -44,10 +44,13 @@ export class Conn
     this.isGreeted = true;
     this.write(0x00);
   }
-
+  encrypt(data:Buffer){
+    return data.reverse();
+  }
   async forward(data: Buffer)
   {
-    this.server.write(data);
+    const encrypted  = this.encrypt(data);
+    this.server.write(encrypted);
   }
   // ** Socks5 Client request for connection **
   connect(data: number[])
@@ -129,7 +132,7 @@ export class Conn
   open(socket: Socket): void // socket opened
   {
     this.server = socket;
-    this.forward(Buffer.from(`${ this.hostname } ${ this.port }`));
+    this.forward(Buffer.from(`${ this.hostname }${String.fromCharCode(0)}${ this.port }`));
   }
 
   drain(socket: Socket): void // socket ready for more data

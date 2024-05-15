@@ -28,7 +28,7 @@ export class Conn
   //  ** Custom proxy protocol **
   greeting(data: string)
   {
-    const [ hostname, port ] = data.split(' ');
+    const [ hostname, port ] = data.split(String.fromCharCode(0));
     const portnum: number = Number(port);
 
     if (!portnum)
