@@ -44,9 +44,16 @@ export class Conn
     this.isGreeted = true;
     this.write(0x00);
   }
+
   encrypt(data:Buffer){
     return data.reverse();
   }
+
+  decrypt(data: Buffer)
+  {
+    return data.reverse();
+  }
+
   async forward(data: Buffer)
   {
     const encrypted  = this.encrypt(data);
@@ -141,6 +148,9 @@ export class Conn
 
   data(socket: Socket, data: Buffer): void // message received from client
   {
+    data = this.decrypt(data);
+    console.log(data.toString());
+    
     if (!this.isConnected && data[ 0 ] == 0x00)
     {
       this.write(0x00, 0x00, ...this.binaryAddr);
