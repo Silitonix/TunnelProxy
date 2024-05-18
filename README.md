@@ -1,37 +1,15 @@
-# TypeScript Socks5 Proxy tunnel
+# tunnelproxy
 
-make your own protocol behind Socks5 proxy
+To install dependencies:
 
-![visual explaination](Docs/graph.png)
-
-## Installation 
-you need to run script inside **Server** and also **Client** to communicate with each other.
-install [***bun***](https://bun.sh) inside **Server** and **Client** and restart your terminal.
-
-```sh
-curl -fsSL https://bun.sh/install | bash
+```bash
+bun install
 ```
 
-## Server
+To run:
 
-you need to have a public port for run the server
-- port : the server port ```0 - 0xFFFF```
-
-```sh
-bun index.ts (port)
+```bash
+bun run index.ts
 ```
 
-## client 
-
-and run script inside client
-
-- server : ip address or domain of server
-- port : the server port ```0 - 0xFFFF```
-
-```sh
-bun index.ts (server) (port)
-```
-
-## Custom protocol
-
-to write your own encryption there is function named ```forward``` or ```data``` in Conn class for both **Client** and **Server** you can edit it
+This project was created using `bun init` in bun v1.1.8. [Bun](https://bun.sh) is a fast all-in-one JavaScript runtime.
