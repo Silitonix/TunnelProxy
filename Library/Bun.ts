@@ -10,7 +10,7 @@ export class BunTCP<Type extends Connection> implements ISocket
 
   private _hostname: string;
   private _port: number;
-  private tunnel?: ITunnel;
+  private geteway?: ITunnel;
 
   get hostname() { return this._hostname }
   get port() { return this._port }
@@ -24,9 +24,9 @@ export class BunTCP<Type extends Connection> implements ISocket
     this.blueprint = blueprint;
   }
 
-  bind(tunnel: ITunnel)
+  bind(gateway: ITunnel)
   {
-    this.tunnel = tunnel;
+    this.geteway = gateway;
   }
 
   listen(hostname: string, port: number)
@@ -39,7 +39,8 @@ export class BunTCP<Type extends Connection> implements ISocket
       port: this._port,
       socket: {
         open: this.open.bind(this),
-        data: this.data.bind(this)
+        data: this.data.bind(this),
+        error:this.error.bind(this)
       },
     });
   }
@@ -50,10 +51,15 @@ export class BunTCP<Type extends Connection> implements ISocket
   }
   data(socket: Socket<Type>, data: Buffer)
   {
-    if (!this.tunnel)
+    if (!this.geteway)
     {
       return;
     }
-    this.tunnel.write(data);
+    this.geteway.write(data);
+  }
+
+  error(socket:Socket<Type>,error:Error)
+  {
+    socket.end();
   }
 }
