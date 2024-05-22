@@ -1,13 +1,12 @@
+import type { Socket } from "bun";
 import type { Connection } from "./Connection";
-import type { ServerOptions } from "./Server";
-import type { Tunnel } from "./Tunnel";
+import type { ITunnel } from "./Tunnel";
 
-export class SocksServer implements Tunnel
+export class SocksServer implements ITunnel
 {
-  gateway: Tunnel;
-  constructor(gateway: Tunnel)
+  constructor()
   {
-    this.gateway = gateway;
+    
   }
 
   write(data: Buffer)
@@ -15,13 +14,15 @@ export class SocksServer implements Tunnel
   }
 }
 
-class SocksConn implements Connection
+export class SocksConn implements Connection
 {
-  greeting: boolean = false;
+  private socket: Socket<SocksConn>;
+  private greeting: boolean = false;
+  private authorized: boolean = false;
 
-  constructor()
+  constructor(socket: Socket<SocksConn>)
   {
-
+    this.socket = socket;
   }
 
   ClientGreeting()

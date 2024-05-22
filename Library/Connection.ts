@@ -1,5 +1,6 @@
-export interface Connection
+import type { ITunnel } from "./Tunnel";
+
+export interface Connection extends ITunnel
 {
-  write(data: Buffer): void
   close():void
 }

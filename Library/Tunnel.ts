@@ -1,4 +1,4 @@
-export interface Tunnel
+export interface ITunnel
 {
   write(data: Buffer): void;
 }

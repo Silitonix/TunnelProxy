@@ -1,6 +1,7 @@
-import type { Tunnel } from "./Tunnel";
+import type { ITunnel } from "./Tunnel";
 
-export interface Socket
+export interface ISocket
 {
-  listen(tunnel: Tunnel): void;
+  bind(tunnel: ITunnel): void;
+  listen(hostname: string, port: number): void;
 }

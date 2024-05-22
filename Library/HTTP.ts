@@ -1,6 +1,6 @@
-import type { Tunnel } from "./Tunnel";
+import type { ITunnel } from "./Tunnel";
 
-export class HTTPClient implements Tunnel
+export class HTTPClient implements ITunnel
 {
   constructor(address: string, port = 80)
   {
