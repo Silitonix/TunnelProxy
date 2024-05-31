@@ -19,6 +19,6 @@ export class Socks extends Tunnel {
   }
 
   //#region Statics
-  
+
   ////#endregion
 }
