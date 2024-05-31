@@ -6,6 +6,7 @@ import { Packet } from "../Library/Packet";
 
 export class BunTCP<Type> extends Tunnel implements ISocket {
   blueprint: SocketClass<Type>;
+
   constructor(gateway: Tunnel, blueprint: SocketClass<Type>) {
     super(gateway);
     this.blueprint = blueprint;
@@ -18,6 +19,7 @@ export class BunTCP<Type> extends Tunnel implements ISocket {
       socket: {},
     });
   }
+
   open(socket: Socket<Type>): void {
     socket.data = new this.blueprint();
   }
