@@ -1,5 +1,5 @@
 import type { Socket } from "bun";
-import { SocketSchema, type ISocketSchema } from "../Library/Schema";
+import { SocketSchema } from "../Library/Schema";
 
 export class Socks5Schema extends SocketSchema {
   isGreeted: boolean = false;
