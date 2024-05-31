@@ -1,14 +1,13 @@
 import type { Socket } from "bun";
-import type { ISocketSchema } from "../Library/Socket";
+import { SocketSchema, type ISocketSchema } from "../Library/Schema";
 
-export class Socks5Schema implements ISocketSchema {
+export class Socks5Schema extends SocketSchema {
   isGreeted: boolean = false;
 
   isAuthorized: boolean = false;
 
-  socket: Socket<Socks5Schema>;
   constructor(socket: Socket<Socks5Schema>) {
-    this.socket = socket;
+    super(socket);
   }
 
   private greeting(version: number, data: number[]): void {
