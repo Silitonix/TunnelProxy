@@ -48,7 +48,7 @@ export class Socks5Schema extends SocketSchema {
     this.isAuthorized = true;
   }
 
-  private route(data: number[]) {
+  private route(data: number[]): void {
     if (this.isRouted) return;
   }
 }

@@ -18,11 +18,11 @@ export class BunTCP<Type> extends Tunnel implements ISocket {
       socket: {},
     });
   }
-  open(socket: Socket<Type>) {
+  open(socket: Socket<Type>): void {
     socket.data = new this.blueprint();
   }
 
-  data(socket: Socket<Type>, data: Buffer) {
+  data(socket: Socket<Type>, data: Buffer): void {
     const pointer = Pointer.from(socket);
     const packet = new Packet(pointer, data);
     this._gateway.write(packet);
