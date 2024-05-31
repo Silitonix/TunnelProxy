@@ -4,6 +4,8 @@ import { SocketSchema, type ISocketSchema } from "../Library/Schema";
 export class Socks5Schema extends SocketSchema {
   isGreeted: boolean = false;
   isAuthorized: boolean = false;
+  isRouted: boolean = false;
+  isVerified: boolean = false;
 
   constructor(socket: Socket<Socks5Schema>) {
     super(socket);
@@ -12,25 +14,25 @@ export class Socks5Schema extends SocketSchema {
   verify(data: Buffer): boolean {
     const [version, ...msg] = Array.from(data);
 
-    if (version !== 0x05 && (!this.isGreeted || !this.isAuthorized)) {
+    if (this.isVerified) {
+      return true;
+    }
+
+    if (version !== 0x05) {
       this.socket.end();
       return false;
     }
 
-    if (!this.isGreeted) {
-      this.greeting(msg);
-      return false;
-    }
+    this.greeting(msg);
+    this.authorize(msg);
+    this.route(msg);
 
-    if (!this.isAuthorized) {
-      this.authorize(msg);
-      return false;
-    }
-
-    return true;
+    return false;
   }
 
   private greeting(data: number[]): void {
+    if (this.isGreeted) return;
+
     const nMethods = data[0];
     const methods = data.slice(1, 1 + nMethods);
     if (nMethods === 0 || !methods.includes(0x00)) {
@@ -42,8 +44,11 @@ export class Socks5Schema extends SocketSchema {
   }
 
   private authorize(data: number[]): void {
+    if (this.isAuthorized) return;
     this.isAuthorized = true;
   }
 
-  private route() {}
+  private route(data: number[]) {
+    if (this.isRouted) return;
+  }
 }
