@@ -4,7 +4,7 @@ import { Tunnel, type ITunnel } from "../Library/Tunnel";
 import { Pointer } from "../Library/Pointer";
 import { Socks5Template } from "../Templates/Socks5";
 
-export class SocksServer extends Tunnel {
+export class Socks5Server extends Tunnel {
   constructor(gateway: ITunnel) {
     super(gateway);
   }

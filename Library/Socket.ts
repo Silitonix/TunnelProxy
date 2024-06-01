@@ -1,20 +1,23 @@
 import type { Address } from "./Address";
-import { Tunnel } from "./Tunnel";
+import type { Packet } from "./Packet";
+import type { ITunnel, Tunnel } from "./Tunnel";
 
 export type SocketClass<Type> = new (...any: any[]) => Type;
-
 export interface ISocketServer {
-  listen(address: Address): void;
+  listen(gateway: Tunnel): void;
 }
 
-export abstract class SocketServer extends Tunnel implements ISocketServer {
+export abstract class SocketServer implements ISocketServer,ITunnel {
   source: Address;
 
-  constructor(gateway: Tunnel, source: Address) {
-    super(gateway);
+  constructor(source: Address) {
     this.source = source;
   }
-  listen(): void {
+  write(packet: Packet): void
+  {
+    throw new Error("Method not implemented.");
+  }
+  listen(gateway: Tunnel): void {
     throw new Error("Method not implemented.");
   }
 }

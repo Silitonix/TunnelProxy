@@ -1,20 +1,24 @@
 import type { Socket } from "bun";
-import { SocketServer } from "../Library/Socket";
-import { type ISocketServer, type SocketClass } from "../Library/Socket";
+import { SocketServer, type SocketClass } from "../Library/Socket";
 import { Tunnel } from "../Library/Tunnel";
 import { Pointer } from "../Library/Pointer";
 import { Packet } from "../Library/Packet";
 import type { Address } from "../Library/Address";
 
-export class BunTCPServer<Type> extends SocketServer implements ISocketServer {
+export class BunTCPServer<Type> extends SocketServer {
   blueprint: SocketClass<Type>;
-
-  constructor(gateway: Tunnel, source: Address, blueprint: SocketClass<Type>) {
-    super(gateway, source);
+  private _gateway?: Tunnel;
+  constructor(source: Address, blueprint: SocketClass<Type>) {
+    super(source);
     this.blueprint = blueprint;
   }
+  write(packet: Packet): void {
+    const socket = Pointer.to<Socket<Type>>(packet.socket);
+    socket.write(packet.data);
+  }
 
-  listen(): void {
+  listen(gateway: Tunnel): void {
+    this._gateway = gateway;
     Bun.listen<Type>({
       hostname: this.source.hostname,
       port: this.source.port,
@@ -29,6 +33,6 @@ export class BunTCPServer<Type> extends SocketServer implements ISocketServer {
   data(socket: Socket<Type>, data: Buffer): void {
     const pointer = Pointer.from(socket);
     const packet = new Packet(pointer, data, this.source);
-    this._gateway.write(packet);
+    this._gateway?.write(packet);
   }
 }

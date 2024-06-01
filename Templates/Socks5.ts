@@ -56,44 +56,21 @@ export class Socks5Template extends SocketTemplate {
   private route(data: number[]): void {
     if (this.isRouted) return;
 
-    const cmd = data[0];
-    const addrType = data[3];
-    let addrLength = 0;
-    let hostname: string = "";
+    const address = Address.fromBinary(data.slice(3));
 
-    switch (addrType) {
-      case 0x01: // IPv4
-        addrLength = 4;
-        hostname = data.slice(4, 4 + addrLength).join(".");
-        break;
-      case 0x03: // Domain name
-        addrLength = data[4];
-        hostname = String.fromCharCode(...data.slice(5, 5 + addrLength));
-        break;
-      case 0x04: // IPv6
-        addrLength = 16;
-        hostname = data
-          .slice(4, 4 + addrLength)
-          .map((b) => b.toString(16).padStart(2, "0"))
-          .join(":");
-        break;
-      default:
-        this.socket.end();
-        return;
+    if (!address) {
+      this.socket.end();
+      return;
     }
 
-    const portIndex = 4 + (addrType === 0x03 ? 1 + addrLength : addrLength);
-    const port = (data[portIndex] << 8) | data[portIndex + 1];
-
-    this.destination = new Address(hostname, port);
-
-    this.protocol = cmd;
+    this.destination = address;
+    this.protocol = data[0];
 
     this.isRouted = true;
     this.isVerified = true;
 
-    let response: number[] = [0x05, 0x00, 0x00]; // VER, REP, RSV
-    response.push(0x01); // ATYP for IPv4
+    let response: number[] = [0x05, 0x00, 0x00];
+    response.push(Address. 0x01);
 
     // Add bound address (IPv4)
     response = response.concat(this.source.hostname.split(".").map(Number));

@@ -1,3 +1,5 @@
+import type { Socket } from "bun";
+
 export class Pointer {
   static keys: Map<number, any>;
   static values: Map<any, number>;
@@ -17,7 +19,7 @@ export class Pointer {
     return id;
   }
 
-  static to(pointer: any) {
+  static to<T>(pointer: any): T {
     return this.keys.get(pointer.id);
   }
 }

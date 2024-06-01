@@ -1,9 +1,9 @@
 import type { Address } from "../Library/Address";
 import type { Packet } from "../Library/Packet";
-import { Tunnel } from "../Library/Tunnel";
+import { Tunnel, type ITunnel } from "../Library/Tunnel";
 
-class HTTPClient extends Tunnel {
-  constructor(gateway: Tunnel, address: Address) {
+export class HTTPClient extends Tunnel {
+  constructor(gateway: ITunnel, address: Address) {
     super(gateway);
   }
 
