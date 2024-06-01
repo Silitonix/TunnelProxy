@@ -6,6 +6,7 @@ export class Address {
     this.hostname = hostname;
     this.port = port;
   }
+  //#region converter
 
   static fromBinary(data: number[]): Address | undefined {
     const addrType = data[0];
@@ -25,62 +26,25 @@ export class Address {
     return new Address(hostname, port);
   }
 
-  static parseIPv4(data: number[]): string {
-    const addrLength = 4;
-    return data.slice(1, 1 + addrLength).join(".");
-  }
-
-  static parseDomain(data: number[]): string {
-    const addrLength = data[1];
-    return String.fromCharCode(...data.slice(2, 2 + addrLength));
-  } 
-
-  static parseIPv6(data: number[]): string {
-    const addrLength = 16;
-    return data
-      .slice(1, 1 + addrLength)
-      .map((b) => b.toString(16).padStart(2, "0"))
-      .join(":");
-  }
-
-  static parsePort(
-    data: number[],
-    addrType: number,
-    addrLength: number
-  ): number {
-    const portIndex = 1 + (addrType === 0x03 ? 1 + addrLength : addrLength);
-    return (data[portIndex] << 8) | data[portIndex + 1];
-  }
-
   static toBinary(address: Address): number[] {
     let binaryData: number[] = [];
 
-    let addrType: number;
-    if (this.isIPv4(address.hostname)) {
-      addrType = 0x01;
-      binaryData = binaryData.concat(this.ipv4ToBinary(address));
-    } else if (this.isIPv6(address.hostname)) {
-      addrType = 0x04;
-      binaryData = binaryData.concat(this.ipv6ToBinary(address));
-    } else {
-      addrType = 0x03;
-      binaryData = binaryData.concat(this.domainToBinary(address));
-    }
+    const addrType = this.getAddressType(address.hostname);
 
     binaryData.unshift(addrType);
+
+    if (addrType === 0x01) {
+      binaryData = binaryData.concat(this.ipv4ToBinary(address));
+    } else if (addrType === 0x04) {
+      binaryData = binaryData.concat(this.ipv6ToBinary(address));
+    } else {
+      binaryData = binaryData.concat(this.domainToBinary(address));
+    }
 
     binaryData.push((address.port >> 8) & 0xff);
     binaryData.push(address.port & 0xff);
 
     return binaryData;
-  }
-
-  static isIPv4(hostname: string): boolean {
-    return /^\d+\.\d+\.\d+\.\d+$/.test(hostname);
-  }
-
-  static isIPv6(hostname: string): boolean {
-    return /^[0-9a-fA-F:]+$/.test(hostname);
   }
 
   static domainToBinary(address: Address): number[] {
@@ -107,4 +71,48 @@ export class Address {
     });
     return binaryData;
   }
+  //#endregion
+  //#region helper
+  static getAddressType(hostname: string): number {
+    if (this.isIPv4(hostname)) return 0x01;
+    if (this.isIPv6(hostname)) return 0x04;
+    return 0x03;
+  }
+
+  static isIPv4(hostname: string): boolean {
+    return /^\d+\.\d+\.\d+\.\d+$/.test(hostname);
+  }
+
+  static isIPv6(hostname: string): boolean {
+    return /^[0-9a-fA-F:]+$/.test(hostname);
+  }
+  //#endregion
+  //#region parsers
+  static parseIPv4(data: number[]): string {
+    const addrLength = 4;
+    return data.slice(1, 1 + addrLength).join(".");
+  }
+
+  static parseDomain(data: number[]): string {
+    const addrLength = data[1];
+    return String.fromCharCode(...data.slice(2, 2 + addrLength));
+  }
+
+  static parseIPv6(data: number[]): string {
+    const addrLength = 16;
+    return data
+      .slice(1, 1 + addrLength)
+      .map((b) => b.toString(16).padStart(2, "0"))
+      .join(":");
+  }
+
+  static parsePort(
+    data: number[],
+    addrType: number,
+    addrLength: number
+  ): number {
+    const portIndex = 1 + (addrType === 0x03 ? 1 + addrLength : addrLength);
+    return (data[portIndex] << 8) | data[portIndex + 1];
+  }
+  //#endregion
 }
