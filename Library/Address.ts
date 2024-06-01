@@ -29,7 +29,7 @@ export class Address {
   static toBinary(address: Address): number[] {
     let binaryData: number[] = [];
 
-    const addrType = this.getAddressType(address.hostname);
+    const addrType = this.type(address.hostname);
 
     binaryData.unshift(addrType);
 
@@ -73,7 +73,7 @@ export class Address {
   }
   //#endregion
   //#region helper
-  static getAddressType(hostname: string): number {
+  static type(hostname: string): number {
     if (this.isIPv4(hostname)) return 0x01;
     if (this.isIPv6(hostname)) return 0x04;
     return 0x03;

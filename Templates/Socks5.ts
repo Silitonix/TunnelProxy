@@ -70,14 +70,7 @@ export class Socks5Template extends SocketTemplate {
     this.isVerified = true;
 
     let response: number[] = [0x05, 0x00, 0x00];
-    response.push(Address. 0x01);
-
-    // Add bound address (IPv4)
-    response = response.concat(this.source.hostname.split(".").map(Number));
-
-    // Add bound port
-    response.push((this.source.port >> 8) & 0xff);
-    response.push(this.source.port & 0xff);
+    response.concat(Address.toBinary(this.source));
 
     this.socket.write(Buffer.from(response));
   }
