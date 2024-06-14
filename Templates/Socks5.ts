@@ -8,12 +8,15 @@ export class Socks5Template extends SocketTemplate {
   isAuthorized: boolean = false;
   isRouted: boolean = false;
   isVerified: boolean = false;
-  destination?: Address;
-  protocol?: Socks5Command;
+  protocol: Socks5Command = Socks5Command.TCPBind;
   binaryAddress?: Buffer;
 
-  constructor(socket: Socket<Socks5Template>, source: Address) {
-    super(socket, source);
+  constructor(
+    socket: Socket<Socks5Template>,
+    source: Address,
+    destination: Address
+  ) {
+    super(socket, source, destination);
   }
 
   verify(data: Buffer): boolean {
@@ -24,54 +27,61 @@ export class Socks5Template extends SocketTemplate {
     }
 
     if (version !== 0x05) {
+      console.log("Connection with invalid version : %s", version);
       this.socket.end();
       return false;
     }
 
-    this.greeting(msg);
-    this.authorize(msg);
-    this.route(msg);
+    if (this.greeting(msg)) return false;
+    if (this.authorize(msg)) return false;
+    if (this.route(msg)) return false;
 
     return this.isVerified;
   }
 
-  private greeting(data: number[]): void {
-    if (this.isGreeted) return;
+  private greeting(data: number[]): boolean {
+    if (this.isGreeted) return false;
 
     const nMethods = data[0];
-    const methods = data.slice(1, 1 + nMethods);
-    if (nMethods === 0 || !methods.includes(0x00)) {
+    const methods = data.slice(1);
+
+    if (nMethods == 0 || !methods.includes(0x00)) {
+      console.log("invalid auth methods %s", methods);
       this.socket.end();
-      return;
+      return true;
     }
+
     this.socket.write(Buffer.from([0x05, 0x00]));
-    this.isGreeted = true;
+    return (this.isGreeted = true);
   }
 
-  private authorize(data: number[]): void {
-    if (this.isAuthorized) return;
+  private authorize(data: number[]): boolean {
+    if (this.isAuthorized) return false;
     this.isAuthorized = true;
+    return false;
   }
 
-  private route(data: number[]): void {
-    if (this.isRouted) return;
+  private route(data: number[]): boolean {
+    if (this.isRouted) return false;
 
-    const address = Address.fromBinary(data.slice(3));
+    const address = Address.fromBinary(data.slice(2));
 
     if (!address) {
       this.socket.end();
-      return;
+      return true;
     }
 
     this.destination = address;
     this.protocol = data[0];
 
-    this.isRouted = true;
-    this.isVerified = true;
-
     let response: number[] = [0x05, 0x00, 0x00];
-    response.concat(Address.toBinary(this.source));
+    const binaryAddress = Address.toBinary(this.source);
+
+    response = response.concat(binaryAddress);
 
     this.socket.write(Buffer.from(response));
+
+    this.isRouted = true;
+    return (this.isVerified = true);
   }
 }

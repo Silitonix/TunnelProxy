@@ -3,23 +3,38 @@ import type { Socket } from "bun";
 export class Pointer {
   static keys: Map<number, any>;
   static values: Map<any, number>;
-
+  static counter = 0;
   static {
     this.keys = new Map();
     this.values = new Map();
   }
 
-  static from(pointer: any): number {
-    if (this.values.has(pointer)) {
-      return this.values.get(pointer) ?? 0;
+  static from(value: any): number {
+    if (this.values.has(value)) {
+      return this.values.get(value) ?? 0;
     }
-    const id = performance.now() | 0;
-    this.values.set(pointer, id);
-    this.keys.set(id, pointer);
+
+    const id = this.counter++;
+    this.values.set(value, id);
+    this.keys.set(id, value);
     return id;
   }
 
-  static to<T>(pointer: any): T {
-    return this.keys.get(pointer.id);
+  static to<T>(pointer: number): T {
+    return this.keys.get(pointer);
+  }
+
+  static delete(Unknown: any) {
+    if (typeof Unknown == "number") {
+      const value = this.keys.get(Unknown);
+      if (!value) return;
+      this.values.delete(value);
+      this.keys.delete(Unknown);
+    } else {
+      const pointer = this.values.get(Unknown);
+      if (!pointer) return;
+      this.keys.delete(pointer);
+      this.values.delete(Unknown);
+    }
   }
 }

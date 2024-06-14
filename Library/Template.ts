@@ -9,10 +9,15 @@ export interface ISocketSchema {
 export abstract class SocketTemplate implements ISocketSchema {
   socket: Socket<Socks5Template>;
   source: Address;
-
-  constructor(socket: Socket<Socks5Template>, source: Address) {
+  destination: Address;
+  constructor(
+    socket: Socket<Socks5Template>,
+    source: Address,
+    destination: Address
+  ) {
     this.socket = socket;
     this.source = source;
+    this.destination = destination;
   }
   verify(data: Buffer): boolean {
     throw new Error("Method not implemented.");

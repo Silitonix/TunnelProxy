@@ -1,13 +1,14 @@
 export class Address {
   hostname: string;
   port: number;
+  static readonly empty = new Address("", 0);
 
-  constructor(hostname: string, port: number) {
+  constructor(hostname: string, port: number = 80) {
     this.hostname = hostname;
     this.port = port;
   }
-  //#region converter
 
+  //#region converter
   static fromBinary(data: number[]): Address | undefined {
     const addrType = data[0];
 
@@ -86,6 +87,7 @@ export class Address {
   static isIPv6(hostname: string): boolean {
     return /^[0-9a-fA-F:]+$/.test(hostname);
   }
+
   //#endregion
   //#region parsers
   static parseIPv4(data: number[]): string {
