@@ -1,5 +1,3 @@
-import type { Socket } from "bun";
-
 export class Pointer {
   static keys: Map<number, any>;
   static values: Map<any, number>;
@@ -11,12 +9,17 @@ export class Pointer {
 
   static from(value: any): number {
     if (this.values.has(value)) {
-      return this.values.get(value) ?? 0;
+      const id = this.values.get(value);
+      if (id === undefined) {
+        throw "Error : socket not found";
+      }
+      return id;
     }
 
-    const id = this.counter++;
+    const id = ++this.counter;
     this.values.set(value, id);
     this.keys.set(id, value);
+    
     return id;
   }
 

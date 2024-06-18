@@ -2,6 +2,7 @@ import type { Socket } from "bun";
 import { SocketTemplate } from "../Library/Template";
 import { Socks5Command } from "./Socks5Command";
 import { Address } from "../Library/Address";
+import { Pointer } from "../Library/Pointer";
 
 export class Socks5Template extends SocketTemplate {
   isGreeted: boolean = false;
@@ -10,13 +11,12 @@ export class Socks5Template extends SocketTemplate {
   isVerified: boolean = false;
   protocol: Socks5Command = Socks5Command.TCPBind;
   binaryAddress?: Buffer;
+  socket: Socket<SocketTemplate>;
 
-  constructor(
-    socket: Socket<Socks5Template>,
-    source: Address,
-    destination: Address
-  ) {
-    super(socket, source, destination);
+  constructor(source: Address, destination: Address) {
+    super(source, destination);
+    const socket = Pointer.to(source.activeSocket) as Socket<SocketTemplate>;
+    this.socket = socket;
   }
 
   verify(data: Buffer): boolean {

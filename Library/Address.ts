@@ -1,13 +1,36 @@
 export class Address {
   hostname: string;
   port: number;
-  static readonly empty = new Address("", 0);
-
-  constructor(hostname: string, port: number = 80) {
-    this.hostname = hostname;
-    this.port = port;
+  socket: number[] = [];
+  static get empty() {
+    return new Address("", 0);
   }
 
+  constructor(hostname: string, port: number = 80, ...socket: number[]) {
+    this.hostname = hostname;
+    this.port = port;
+    this.socket.push(...socket);
+  }
+  static clone(address: Address) {
+    const clone = new Address(
+      address.hostname,
+      address.port,
+      ...address.socket
+    );
+    return clone;
+  }
+  get isBinded() {
+    return this.socket.length < 1 || this.activeSocket < 0;
+  }
+  get activeSocket() {
+    return this.socket[this.socket.length - 1];
+  }
+  set activeSocket(value: number) {
+    this.socket[this.socket.length - 1] = value;
+  }
+  get clone() {
+    return new Address(this.hostname, this.port, ...this.socket);
+  }
   //#region converter
   static fromBinary(data: number[]): Address | undefined {
     const addrType = data[0];

@@ -10,7 +10,5 @@ export abstract class Tunnel implements ITunnel {
     this._gateway = gateway;
   }
 
-  write(...packets: Packet[]): void {
-    throw new Error("Method not implemented.");
-  }
+  async write(...packets: Packet[]): Promise<void> {}
 }

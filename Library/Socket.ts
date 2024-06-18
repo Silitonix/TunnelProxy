@@ -3,11 +3,7 @@ import type { Address } from "./Address";
 import type { Packet } from "./Packet";
 import type { ITunnel, Tunnel } from "./Tunnel";
 
-export type SocketClass<Type> = new (
-  socket: Socket<Type>,
-  source: Address,
-  destination: Address
-) => Type;
+export type SocketClass<T> = new (source: Address, destination: Address) => T;
 export interface ISocketServer {
   listen(gateway: Tunnel): void;
 }

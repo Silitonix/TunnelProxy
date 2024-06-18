@@ -14,7 +14,7 @@ export class BunHTTPServer extends SocketServer {
       port: this.source.port,
       hostname: this.source.hostname,
       async fetch(request: Request, server: Server): Promise<Response> {
-        throw new Error("Function not implemented.");
+        return new Response()
       },
     });
   }

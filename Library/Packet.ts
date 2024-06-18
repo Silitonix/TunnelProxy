@@ -1,35 +1,29 @@
 import { Address } from "./Address";
 
 export class Packet {
-  socket: number;
   destination: Address;
   source: Address;
   data: Buffer;
 
-  constructor(
-    socket: number,
-    data: Buffer,
-    source: Address,
-    destination: Address
-  ) {
+  constructor(data: Buffer, source: Address, destination: Address) {
     this.data = data;
-    this.socket = socket;
     this.source = source;
     this.destination = destination;
   }
+  get clone() {
+    return new Packet(this.data, this.source.clone, this.destination.clone);
+  }
 
+  static readonly emptyBuffer = Buffer.from([]);
   static serialize(...packets: Packet[]): string {
     const output: string[] = [];
     packets.forEach((packet) => {
       const data = [
-        packet.socket.toString(36),
-        atob(packet.destination?.hostname ?? ""),
-        packet.destination?.port.toString(36) ?? "",
-        atob(packet.source.hostname),
-        packet.source.port.toString(36),
+        btoa(JSON.stringify(packet.source)),
+        btoa(JSON.stringify(packet.destination)),
         packet.data.toString("base64"),
-      ].join(",");
-      output.push(data);
+      ];
+      output.push(data.join(","));
     });
 
     return output.join("|");
@@ -38,20 +32,17 @@ export class Packet {
   static deserialize(serialized: string): Packet[] {
     const packets: Packet[] = [];
     serialized.split("|").forEach((packet) => {
-      const [socket, dstHostname, dstPort, srcHostname, srcPort, ...dataArray] =
-        packet.split(",");
+      const [src, dst, ...dataArray] = packet.split(",");
       const dataString = dataArray.join(",");
 
-      const destination = new Address(btoa(dstHostname), parseInt(dstPort, 36));
-      const source = new Address(btoa(srcHostname), parseInt(srcPort, 36));
+      const dstObj = JSON.parse(atob(dst));
+      const srcObj = JSON.parse(atob(src));
+
+      const destination = Address.clone(dstObj);
+      const source = Address.clone(srcObj);
 
       packets.push(
-        new Packet(
-          parseInt(socket, 36),
-          Buffer.from(dataString, "binary"),
-          source,
-          destination
-        )
+        new Packet(Buffer.from(dataString, "base64"), source, destination)
       );
     });
     return packets;

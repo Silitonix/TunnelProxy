@@ -9,9 +9,10 @@ export class Socks5Server extends Tunnel {
     super(gateway);
   }
 
-  write(...packets: Packet[]): void {
+  async write(...packets: Packet[]): Promise<void> {
     packets.forEach(packet => {
-      const socket: Socket<Socks5Template> = Pointer.to(packet.socket);
+      const socket: Socket<Socks5Template> = Pointer.to(packet.source.activeSocket);
+
       const verify = socket.data.verify(packet.data);
       if (verify == false) {
         return;

@@ -3,41 +3,57 @@ import type { Address } from "../Library/Address";
 import { Packet } from "../Library/Packet";
 import { Tunnel, type ITunnel } from "../Library/Tunnel";
 import { Pointer } from "../Library/Pointer";
+import { DefaultTemplate } from "../Templates/Default";
 
 export class TCPClient extends Tunnel {
-  constructor(gateway: ITunnel) {
+  remote?: Address;
+  constructor(gateway: ITunnel, address?: Address) {
     super(gateway);
+    this.remote = address;
   }
-  write(...packets: Packet[]): void {
-    packets.forEach((packet) => {
-      Bun.connect<Packet>({
-        hostname: packet.destination.hostname,
-        port: packet.destination.port,
-        socket: {
-          open(socket) {
-            const pointer = Pointer.from(socket);
-            socket.data = new Packet(
-              pointer,
-              Buffer.from([]),
-              packet.source,
-              packet.destination
-            );
-          },
-          data: this.data.bind(this),
-          drain(socket) {
-            socket.write(packet.data);
-          },
+
+  connect(packet: Packet) {
+    const destination = this.remote ?? packet.destination;
+    Bun.connect<DefaultTemplate>({
+      hostname: destination.hostname,
+      port: destination.port,
+      socket: {
+        open(socket) {
+          const pointer = Pointer.from(socket);
+          packet.destination.socket.push(pointer);
+          socket.data = new DefaultTemplate(packet.source, packet.destination);
+          socket.write(packet.data);
         },
-      });
+        data: this.data.bind(this),
+        error: this.close,
+        close: this.close,
+        connectError: this.close,
+      },
     });
   }
-  data(socket: Socket<Packet>, data: Buffer) {
+
+  async write(...packets: Packet[]): Promise<void> {
+    packets.forEach((packet) => {
+      const socket = Pointer.to(packet.destination.activeSocket) as Socket<DefaultTemplate>;
+
+      if (socket == undefined) {
+        this.connect(packet);
+        return;
+      }
+
+      socket.write(packet.data);
+    });
+  }
+
+  data(socket: Socket<DefaultTemplate>, data: Buffer) {
     const packet = new Packet(
-      socket.data.socket,
       data,
       socket.data.source,
       socket.data.destination
     );
     this._gateway.write(packet);
+  }
+  close(socket: Socket<Packet>) {
+    Pointer.delete(socket);
   }
 }
