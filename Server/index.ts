@@ -5,7 +5,7 @@ import { Serializer } from "../Protocols/Serializer";
 import { TCPClient } from "../Protocols/TCPClient";
 import { DefaultTemplate } from "../Templates/Default";
 
-const addrListen = new Address("127.0.0.1", 42069);
+const addrListen = new Address("0.0.0.0", 42069);
 
 const socket = new BunTCPServer(addrListen, DefaultTemplate);
 // const serializer = new Serializer(socket);
