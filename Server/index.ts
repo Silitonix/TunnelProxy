@@ -8,8 +8,8 @@ import { DefaultTemplate } from "../Templates/Default";
 const addrListen = new Address("0.0.0.0", 42069);
 
 const socket = new BunTCPServer(addrListen, DefaultTemplate);
-// const serializer = new Serializer(socket);
-const direct = new TCPClient(socket);
-// const deserializer = new Deserializer(direct);
+const serializer = new Serializer(socket);
+const direct = new TCPClient(serializer);
+const deserializer = new Deserializer(direct);
 
-socket.listen(direct);
+socket.listen(deserializer);

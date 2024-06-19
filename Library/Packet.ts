@@ -15,36 +15,26 @@ export class Packet {
   }
 
   static readonly emptyBuffer = Buffer.from([]);
-  static serialize(...packets: Packet[]): string {
-    const output: string[] = [];
-    packets.forEach((packet) => {
-      const data = [
-        btoa(JSON.stringify(packet.source)),
-        btoa(JSON.stringify(packet.destination)),
-        packet.data.toString("base64"),
-      ];
-      output.push(data.join(","));
-    });
 
-    return output.join("|");
+  get serialized(): Buffer {
+    const data = [
+      btoa(JSON.stringify(this.source)),
+      btoa(JSON.stringify(this.destination)),
+      this.data.toString("base64"),
+    ];
+    return Buffer.from(data.join(","), "binary");
   }
 
-  static deserialize(serialized: string): Packet[] {
-    const packets: Packet[] = [];
-    serialized.split("|").forEach((packet) => {
-      const [src, dst, ...dataArray] = packet.split(",");
-      const dataString = dataArray.join(",");
+  get deserialized(): Packet {
+    const [src, dst, ...dataArray] = this.data.toString("binary").split(",");
+    const dataString = dataArray.join(",");
 
-      const dstObj = JSON.parse(atob(dst));
-      const srcObj = JSON.parse(atob(src));
+    const dstObj = JSON.parse(atob(dst));
+    const srcObj = JSON.parse(atob(src));
 
-      const destination = Address.clone(dstObj);
-      const source = Address.clone(srcObj);
+    const destination = Address.clone(dstObj);
+    const source = Address.clone(srcObj);
 
-      packets.push(
-        new Packet(Buffer.from(dataString, "base64"), source, destination)
-      );
-    });
-    return packets;
+    return new Packet(Buffer.from(dataString, "base64"), source, destination);
   }
 }

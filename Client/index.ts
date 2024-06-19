@@ -13,12 +13,12 @@ const addrGateway = new Address("127.0.0.1", 42069);
 
 const socket = new BunTCPServer(addrListen, Socks5Template);
 const direct = new TCPClient(socket);
-// const deserializer = new Deserializer(socket,true);
-const redirected = new TCPClient(socket);
-// const serializer = new Serializer(redirected, addrGateway);
+const deserializer = new Deserializer(socket);
+const redirected = new TCPClient(deserializer);
+const serializer = new Serializer(redirected);
 
 const router = new Router(direct, {
-  tunnel: redirected,
+  tunnel: serializer,
   verify: (packet: Packet) => {
     const addr = packet.destination.hostname;
     const domain = addr.split(".");
