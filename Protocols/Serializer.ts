@@ -11,6 +11,8 @@ export class Serializer extends Tunnel {
       packet.data = packet.serialized;
       return packet;
     });
+    console.log("serialized : ",serialized);
+    
     this._gateway.write(...serialized);
   }
 }

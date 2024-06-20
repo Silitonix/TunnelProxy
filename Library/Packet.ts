@@ -14,27 +14,48 @@ export class Packet {
     return new Packet(this.data, this.source.clone, this.destination.clone);
   }
 
+  static clone(struct: Packet) {
+    const clone = new Packet(
+      Buffer.from(struct.data),
+      Address.clone(struct.source),
+      Address.clone(struct.destination)
+    );
+    return clone;
+  }
   static readonly emptyBuffer = Buffer.from([]);
-
   get serialized(): Buffer {
     const data = [
-      btoa(JSON.stringify(this.source)),
-      btoa(JSON.stringify(this.destination)),
+      this.source.hostname,
+      this.source.port,
+      this.source.socket.join("."),
+      this.destination.hostname,
+      this.destination.port,
+      this.destination.socket.join("."),
       this.data.toString("base64"),
     ];
-    return Buffer.from(data.join(","), "binary");
+    return Buffer.from(data.join(","));
   }
 
   get deserialized(): Packet {
-    const [src, dst, ...dataArray] = this.data.toString("binary").split(",");
-    const dataString = dataArray.join(",");
+    const raw = this.data.toString();
 
-    const dstObj = JSON.parse(atob(dst));
-    const srcObj = JSON.parse(atob(src));
+    const [
+      srcHostname,
+      srcPort,
+      srcSocket,
+      dstHostname,
+      dstPort,
+      dstSocket,
+      data,
+    ] = raw.split(",");
 
-    const destination = Address.clone(dstObj);
-    const source = Address.clone(srcObj);
+    const srcSocketArray = srcSocket.split(".").map(Number);
+    const dstSocketArray = dstSocket.split(".").map(Number);
+    const src = new Address(srcHostname, Number(srcPort), ...srcSocketArray);
+    const dst = new Address(dstHostname, Number(dstPort), ...dstSocketArray);
+    const buffer = Buffer.from(data, "base64");
 
-    return new Packet(Buffer.from(dataString, "base64"), source, destination);
+    const packet = new Packet(buffer, src, dst);
+    return packet;
   }
 }

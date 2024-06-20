@@ -26,18 +26,4 @@ export class Pointer {
   static to<T>(pointer: number): T {
     return this.keys.get(pointer);
   }
-
-  static delete(Unknown: any) {
-    if (typeof Unknown == "number") {
-      const value = this.keys.get(Unknown);
-      if (!value) return;
-      this.values.delete(value);
-      this.keys.delete(Unknown);
-    } else {
-      const pointer = this.values.get(Unknown);
-      if (!pointer) return;
-      this.keys.delete(pointer);
-      this.values.delete(Unknown);
-    }
-  }
 }

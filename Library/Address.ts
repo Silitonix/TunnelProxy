@@ -19,9 +19,6 @@ export class Address {
     );
     return clone;
   }
-  get isBinded() {
-    return this.socket.length < 1 || this.activeSocket < 0;
-  }
   get activeSocket() {
     return this.socket[this.socket.length - 1];
   }

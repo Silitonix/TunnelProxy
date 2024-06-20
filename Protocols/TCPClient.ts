@@ -6,35 +6,45 @@ import { Pointer } from "../Library/Pointer";
 import { DefaultTemplate } from "../Templates/Default";
 
 export class TCPClient extends Tunnel {
+  conns: Map<Address, Socket<DefaultTemplate>> = new Map();
   remote?: Address;
   constructor(gateway: ITunnel, address?: Address) {
     super(gateway);
     this.remote = address;
   }
 
-  connect(packet: Packet) {
+  async connect(packet: Packet) {
     const destination = this.remote ?? packet.destination;
-    Bun.connect<DefaultTemplate>({
-      hostname: destination.hostname,
-      port: destination.port,
-      socket: {
-        open(socket) {
-          const pointer = Pointer.from(socket);
-          packet.destination.socket.push(pointer);
-          socket.data = new DefaultTemplate(packet.source, packet.destination);
-          socket.write(packet.data);
+    try {
+      const socket = await Bun.connect<DefaultTemplate>({
+        hostname: destination.hostname,
+        port: destination.port,
+        socket: {
+          open(socket) {
+            socket.data = new DefaultTemplate(
+              packet.source.clone,
+              packet.destination.clone
+            );
+            socket.write(packet.data);
+          },
+          data: this.data.bind(this),
+          error: this.close,
+          close: this.close,
+          connectError: this.connectError,
         },
-        data: this.data.bind(this),
-        error: this.close,
-        close: this.close,
-        connectError: this.close,
-      },
-    });
+      });
+  
+      this.conns.set(packet.source, socket);
+    } catch (error) {
+      console.log(error);
+      
+    }
   }
 
   async write(...packets: Packet[]): Promise<void> {
     packets.forEach((packet) => {
-      const socket = Pointer.to(packet.destination.activeSocket) as Socket<DefaultTemplate>;
+      const destination = packet.destination;
+      const socket = this.conns.get(packet.source);
 
       if (socket == undefined) {
         this.connect(packet);
@@ -53,7 +63,8 @@ export class TCPClient extends Tunnel {
     );
     this._gateway.write(packet);
   }
-  close(socket: Socket<Packet>) {
-    Pointer.delete(socket);
+  close(socket: Socket<DefaultTemplate>) {}
+  connectError(socket: Socket<DefaultTemplate>, error: Error) {
+    
   }
 }

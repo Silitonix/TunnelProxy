@@ -16,7 +16,7 @@ export class BunTCPServer<T extends SocketTemplate> extends SocketServer {
   write(...packets: Packet[]): void {
     packets.forEach((packet) => {
       const pointer = packet.source.activeSocket;
-      const socket = Pointer.to(pointer) as Socket;
+      const socket = Pointer.to(pointer) as Socket<T>;
       socket.write(packet.data);
     });
   }
@@ -51,12 +51,9 @@ export class BunTCPServer<T extends SocketTemplate> extends SocketServer {
     const packet = new Packet(data, source, destination);
     this._gateway?.write(packet);
   }
-  close(socket: Socket<T>) {
-    Pointer.delete(socket);
-  }
+  close(socket: Socket<T>) {}
 
   error(socket: Socket<T>, error: Error): void {
-    socket.end();
     console.log(error);
   }
 }
